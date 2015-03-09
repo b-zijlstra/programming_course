@@ -1,43 +1,43 @@
 #
-# pyopengl.py
-#
-# Basic example Python OpenGL implementation
-# Draws a red triangle and a blue rectangle
-#
 # Author: Ivo Filot
 #
-# Reference: This tut is based on Lesson 2 from the NeHe tutorials
+# 3D perspective
 #
 
-# start by importing some libraries
 from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
 import sys
 
-ESCAPE = '\033' # ESC button
+ESCAPE = '\033'
+
+# Number of the glut window.
 window = 0
+rtri = 0.0
+rquad = 0.0
+rotate_z = 0
 
 # A general OpenGL initialization function.  Sets all of the initial parameters. 
-def InitGL(Width, Height):				# We call this right after our OpenGL window is created.
-    glClearColor(1.0, 1.0, 1.0, 0.0)	# This Will Clear The Background Color To White
-    glClearDepth(1.0)					# Enables Clearing Of The Depth Buffer
-    glDepthFunc(GL_LESS)				# The Type Of Depth Test To Do
-    glEnable(GL_DEPTH_TEST)				# Enables Depth Testing
-    glShadeModel(GL_SMOOTH)				# Enables Smooth Color Shading
+def InitGL(Width, Height):              # We call this right after our OpenGL window is created.
+    glClearColor(1.0, 1.0, 1.0, 0.0)    # This Will Clear The Background Color To Black
+    glClearDepth(1.0)                   # Enables Clearing Of The Depth Buffer
+    glDepthFunc(GL_LESS)                # The Type Of Depth Test To Do
+    glEnable(GL_DEPTH_TEST)             # Enables Depth Testing
+    glShadeModel(GL_SMOOTH)             # Enables Smooth Color Shading
+    
     glMatrixMode(GL_PROJECTION)
-    glLoadIdentity()					# Reset The Projection Matrix
-										# Calculate The Aspect Ratio Of The Window
+    glLoadIdentity()                    # Reset The Projection Matrix
+                                        # Calculate The Aspect Ratio Of The Window
     gluPerspective(45.0, float(Width)/float(Height), 0.1, 100.0)
 
     glMatrixMode(GL_MODELVIEW)
 
 # The function called when our window is resized (which shouldn't happen if you enable fullscreen, below)
 def ReSizeGLScene(Width, Height):
-    if Height == 0:						# Prevent A Divide By Zero If The Window Is Too Small 
-	    Height = 1
+    if Height == 0:                     # Prevent A Divide By Zero If The Window Is Too Small 
+        Height = 1
 
-    glViewport(0, 0, Width, Height)		# Reset The Current Viewport And Perspective Transformation
+    glViewport(0, 0, Width, Height)     # Reset The Current Viewport And Perspective Transformation
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
     gluPerspective(45.0, float(Width)/float(Height), 0.1, 100.0)
@@ -45,55 +45,113 @@ def ReSizeGLScene(Width, Height):
 
 # The main drawing function. 
 def DrawGLScene():
-	# Clear The Screen And The Depth Buffer
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-	glLoadIdentity()			# Reset The View 
+    global rtri, rquad, rotate_z
 
-	# Move Left 1.5 units and into the screen 6.0 units.
-	glTranslatef(-1.5, 0.0, -6.0)
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); # Clear The Screen And The Depth Buffer
+    glLoadIdentity();                   # Reset The View
+    glRotatef(rotate_z, 0, 0, 1.0)
+    glTranslatef(-1.5,0.0,-6.0);                # Move Left And Into The Screen
 
-	# Draw a triangle
-	glBegin(GL_POLYGON)                 # Start drawing a polygon
-	glColor3f(1.0, 0.0, 0.0)            # Red
-	glVertex3f(0.0, 1.0, 0.0)           # Top
-	glVertex3f(1.0, -1.0, 0.0)          # Bottom Right
-	glVertex3f(-1.0, -1.0, 0.0)         # Bottom Left
-	glEnd()                             # We are done with the polygon
+    glRotatef(rtri,0.0,1.0,0.0);                # Rotate The Pyramid On It's Y Axis
 
-	# Move Right 3.0 units.
-	glTranslatef(3.0, 0.0, 0.0)
+    glBegin(GL_TRIANGLES);                  # Start Drawing The Pyramid
 
-	# Draw a square (quadrilateral)
-	glBegin(GL_QUADS)                   # Start drawing a 4 sided polygon
-	glColor3f(0.0, 0.0, 1.0)            # Blue
-	glVertex3f(-1.0, 1.0, 0.0)          # Top Left
-	glVertex3f(1.0, 1.0, 0.0)           # Top Right
-	glVertex3f(1.0, -1.0, 0.0)          # Bottom Right
-	glVertex3f(-1.0, -1.0, 0.0)         # Bottom Left
-	glEnd()                             # We are done with the polygon
+    glColor3f(1.0,0.0,0.0);         # Red
+    glVertex3f( 0.0, 1.0, 0.0);     # Top Of Triangle (Front)
+    glVertex3f(-1.0,-1.0, 1.0);     # Left Of Triangle (Front)
+    glVertex3f( 1.0,-1.0, 1.0);
 
-	#  since this is double buffered, swap the buffers to display what just got drawn. 
-	glutSwapBuffers()
+    glColor3f(0.0,0.0,1.0);         # Blue
+    glVertex3f( 0.0, 1.0, 0.0);     # Top Of Triangle (Right)
+    glVertex3f( 1.0,-1.0, 1.0);     # Left Of Triangle (Right)
+    glVertex3f( 1.0,-1.0, -1.0);        # Right 
 
-# exit the program when ESC is pressed
+    glColor3f(0.0,1.0,0.0);         # Green
+    glVertex3f( 0.0, 1.0, 0.0);     # Top Of Triangle (Back)
+    glVertex3f( 1.0,-1.0, -1.0);        # Left Of Triangle (Back)
+    glVertex3f(-1.0,-1.0, -1.0);        # Right Of 
+        
+        
+    glColor3f(1.0,1.0,0.0);         # Yellow
+    glVertex3f( 0.0, 1.0, 0.0);     # Top Of Triangle (Left)
+    glVertex3f(-1.0,-1.0,-1.0);     # Left Of Triangle (Left)
+    glVertex3f(-1.0,-1.0, 1.0);     # Right Of Triangle (Left)
+    glEnd();    
+
+    glLoadIdentity();
+    glRotatef(rotate_z, 0, 0, 1.0)
+    glTranslatef(1.5,0.0,-7.0);     # Move Right And Into The Screen
+    glRotatef(rquad,1.0,1.0,1.0);       # Rotate The Cube On X, Y & Z
+    glBegin(GL_QUADS);          # Start Drawing The Cube
+
+    glColor3f(0.0,1.0,0.0);         # Set The Color To Blue
+    glVertex3f( 1.0, 1.0,-1.0);     # Top Right Of The Quad (Top)
+    glVertex3f(-1.0, 1.0,-1.0);     # Top Left Of The Quad (Top)
+    glVertex3f(-1.0, 1.0, 1.0);     # Bottom Left Of The Quad (Top)
+    glVertex3f( 1.0, 1.0, 1.0);     # Bottom Right Of The Quad (Top)
+
+    glColor3f(1.0,0.5,0.0);         # Set The Color To Orange
+    glVertex3f( 1.0,-1.0, 1.0);     # Top Right Of The Quad (Bottom)
+    glVertex3f(-1.0,-1.0, 1.0);     # Top Left Of The Quad (Bottom)
+    glVertex3f(-1.0,-1.0,-1.0);     # Bottom Left Of The Quad (Bottom)
+    glVertex3f( 1.0,-1.0,-1.0);     # Bottom Right Of The Quad (Bottom)
+
+    glColor3f(1.0,0.0,0.0);         # Set The Color To Red
+    glVertex3f( 1.0, 1.0, 1.0);     # Top Right Of The Quad (Front)
+    glVertex3f(-1.0, 1.0, 1.0);     # Top Left Of The Quad (Front)
+    glVertex3f(-1.0,-1.0, 1.0);     # Bottom Left Of The Quad (Front)
+    glVertex3f( 1.0,-1.0, 1.0);     # Bottom Right Of The Quad (Front)
+
+    glColor3f(1.0,1.0,0.0);         # Set The Color To Yellow
+    glVertex3f( 1.0,-1.0,-1.0);     # Bottom Left Of The Quad (Back)
+    glVertex3f(-1.0,-1.0,-1.0);     # Bottom Right Of The Quad (Back)
+    glVertex3f(-1.0, 1.0,-1.0);     # Top Right Of The Quad (Back)
+    glVertex3f( 1.0, 1.0,-1.0);     # Top Left Of The Quad (Back)
+
+    glColor3f(0.0,0.0,1.0);         # Set The Color To Blue
+    glVertex3f(-1.0, 1.0, 1.0);     # Top Right Of The Quad (Left)
+    glVertex3f(-1.0, 1.0,-1.0);     # Top Left Of The Quad (Left)
+    glVertex3f(-1.0,-1.0,-1.0);     # Bottom Left Of The Quad (Left)
+    glVertex3f(-1.0,-1.0, 1.0);     # Bottom Right Of The Quad (Left)
+
+    glColor3f(1.0,0.0,1.0);         # Set The Color To Violet
+    glVertex3f( 1.0, 1.0,-1.0);     # Top Right Of The Quad (Right)
+    glVertex3f( 1.0, 1.0, 1.0);     # Top Left Of The Quad (Right)
+    glVertex3f( 1.0,-1.0, 1.0);     # Bottom Left Of The Quad (Right)
+    glVertex3f( 1.0,-1.0,-1.0);     # Bottom Right Of The Quad (Right)
+    glEnd();                # Done Drawing The Quad
+
+    rtri  = rtri + 0.2                  # Increase The Rotation Variable For The Triangle
+    rquad = rquad - 0.15                 # Decrease The Rotation Variable For The Quad
+
+
+    #  since this is double buffered, swap the buffers to display what just got drawn. 
+    glutSwapBuffers()
+
+# The function called whenever a key is pressed. Note the use of Python tuples to pass in: (key, x, y)  
 def keyPressed(*args):
+    global rotate_z
+    # If escape is pressed, kill everything.
     if args[0] == ESCAPE:
-	    sys.exit()
+        sys.exit()
+    if args[0] == 'a':
+        rotate_z -= 1
+    if args[0] == 'd':
+        rotate_z += 1
 
 def main():
-	global window
-	glutInit(sys.argv)
-	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
-	glutInitWindowSize(640, 480)
-	glutInitWindowPosition(0, 0)
-	window = glutCreateWindow("IMC rules!")
-	glutDisplayFunc(DrawGLScene)
-	glutIdleFunc(DrawGLScene)
-	glutReshapeFunc(ReSizeGLScene)
-	glutKeyboardFunc(keyPressed)
-	InitGL(640, 480)
-	glutMainLoop()
+    global window
+    glutInit(sys.argv)
+    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
+    glutInitWindowSize(640, 480)
+    glutInitWindowPosition(0, 0)
+    window = glutCreateWindow("IMC Rules!")
+    glutDisplayFunc(DrawGLScene)
+    glutIdleFunc(DrawGLScene)
+    glutReshapeFunc(ReSizeGLScene)
+    glutKeyboardFunc(keyPressed)
+    InitGL(640, 480)
+    glutMainLoop()
 
-# Print message to console, and kick off the main to get it rolling.
 print "Hit ESC key to quit."
 main()
