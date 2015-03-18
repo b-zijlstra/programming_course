@@ -17,6 +17,7 @@ rtri = 0.0
 rquad = 0.0
 rotate_x = 0
 rotate_y = 0
+zoom = 0.0
 
 data_C = ("C",0.9,0.1,0.1,0.1) #Name,Size,R,G,B
 data_H = ("H",0.5,0.8,0.8,0.8) #Name,Size,R,G,B
@@ -142,11 +143,11 @@ def ReSizeGLScene(Width, Height):
 
 # The main drawing function. 
 def DrawGLScene():
-    global rotate_y, rotate_x, scene
+    global rotate_y, rotate_x, zoom, scene
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); # Clear The Screen And The Depth Buffer
     glLoadIdentity();                   # Reset The View
-    glTranslatef(0.0,0.0,-12.0);        # Move Left And Into The Screen
+    glTranslatef(0.0,0.0,-12.0 - zoom*1.5);        # Move Left And Into The Screen
 
     center = scene.FindCenter()
     scene.DrawSelf(-center[0],-center[1],-center[2],rotate_x,rotate_y,0.0)
@@ -188,29 +189,29 @@ def DrawGLScene():
     #  since this is double buffered, swap the buffers to display what just got drawn. 
     glutSwapBuffers()
 
-# Function to create a carbon.
-def DrawCarbon(Xin,Yin,Zin,Rot_x=0,Rot_y=0):
-    glPushMatrix()
-    glRotatef(Rot_x, 0, 1.0, 0.0)
-    glRotatef(Rot_y, 1.0, 0, 0.0)
-    glColor3f(0.1,0.1,0.1); # Set The Color To Grey
-    glTranslatef(Xin, Yin, Zin)
-    glutSolidSphere(0.9,40,40)
-    glPopMatrix()
+# # Function to create a carbon.
+# def DrawCarbon(Xin,Yin,Zin,Rot_x=0,Rot_y=0):
+#     glPushMatrix()
+#     glRotatef(Rot_x, 0, 1.0, 0.0)
+#     glRotatef(Rot_y, 1.0, 0, 0.0)
+#     glColor3f(0.1,0.1,0.1); # Set The Color To Grey
+#     glTranslatef(Xin, Yin, Zin)
+#     glutSolidSphere(0.9,40,40)
+#     glPopMatrix()
 
-# Function to create a hydrogen.
-def DrawHydrogen(Xin,Yin,Zin,Rot_x=0,Rot_y=0):
-    glPushMatrix()
-    glRotatef(Rot_x, 0, 1.0, 0.0)
-    glRotatef(Rot_y, 1.0, 0, 0.0)
-    glColor3f(0.9,0.9,0.9);
-    glTranslatef(Xin, Yin, Zin)
-    glutSolidSphere(0.5,40,40)
-    glPopMatrix()
+# # Function to create a hydrogen.
+# def DrawHydrogen(Xin,Yin,Zin,Rot_x=0,Rot_y=0):
+#     glPushMatrix()
+#     glRotatef(Rot_x, 0, 1.0, 0.0)
+#     glRotatef(Rot_y, 1.0, 0, 0.0)
+#     glColor3f(0.9,0.9,0.9);
+#     glTranslatef(Xin, Yin, Zin)
+#     glutSolidSphere(0.5,40,40)
+#     glPopMatrix()
 
 # The function called whenever a key is pressed. Note the use of Python tuples to pass in: (key, x, y)  
 def keyPressed(*args):
-    global rotate_x, rotate_y, scene
+    global rotate_x, rotate_y, zoom, scene
     # If escape is pressed, kill everything.
     if args[0] == ESCAPE:
         sys.exit()
@@ -225,9 +226,11 @@ def keyPressed(*args):
     if args[0] == 'q':
         scene.size -= 1
         scene.BuildAlkane()
+        zoom -= 1
     if args[0] == 'e':
         scene.size += 1
         scene.BuildAlkane()
+        zoom += 1
 
 def main():
     global window
